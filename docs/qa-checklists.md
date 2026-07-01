@@ -43,3 +43,27 @@
 - [ ] Every crest has descriptive alt text such as `Manchester City crest`.
 - [ ] Lineups section renders `EmptyState` with `Lineups not available on the free tier`, never a blank section.
 - [ ] `ScoreDisplay` split-flap digits remount on value change and respect `prefers-reduced-motion`.
+
+## Phase 3e — Global Search
+
+- [ ] `/api/search?q=haaland` returns `{ competitions: [], teams: [], players: [] }` grouped results.
+- [ ] Search index is served from Upstash cache (`search-index:v1`, TTL 3600s); no Prisma queries per keystroke.
+- [ ] Search overlay opens on topbar search icon click.
+- [ ] Search overlay opens on ⌘K (macOS) or Ctrl+K (Windows/Linux).
+- [ ] Input has visible `focus-visible:ring-2 focus-visible:ring-floodlight/40` focus ring matching design system.
+- [ ] Input debounces at 150ms before fetching.
+- [ ] Results are grouped under `Competitions`, `Teams`, `Players` caption headers.
+- [ ] Each result row shows Crest (competitions/teams) or PlayerAvatar (players) at 28px + name + context line.
+- [ ] Competition context shows type (e.g. "League"), team context shows country, player context shows "Position · Team".
+- [ ] Click on a result navigates to the detail page and closes the overlay.
+- [ ] Esc key closes the overlay.
+- [ ] Clicking the backdrop closes the overlay.
+- [ ] Empty state shows "No results for ..." when query matches nothing.
+- [ ] Touch targets are ≥ 36×36px (result rows are min-height 44px).
+- [ ] Focus ring is visible when tabbing through results.
+- [ ] Screen reader live region announces result count.
+- [ ] Mobile: overlay fills the full screen.
+- [ ] Desktop: overlay is a centered modal with `max-w-lg`.
+- [ ] Browser Network tab shows zero requests to `football-data.org`.
+- [ ] `buildSearchIndex()` is called at the end of ingestion sync.
+

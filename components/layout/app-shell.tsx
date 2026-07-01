@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ReactNode, useEffect, useState } from "react";
+import dynamic from "next/dynamic";
+import { ReactNode, useCallback, useEffect, useState } from "react";
 import {
   CalendarDays,
   ChevronLeft,
@@ -16,6 +17,11 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+
+const SearchOverlay = dynamic(
+  () => import("@/components/search/search-overlay").then((m) => m.SearchOverlay),
+  { ssr: false },
+);
 
 const navItems = [
   { href: "/", label: "Home", icon: Home },
@@ -36,6 +42,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
   const [theme, setTheme] = useState<"dark" | "light">("dark");
+  const [searchOpen, setSearchOpen] = useState(false);
 
   useEffect(() => {
     setCollapsed(readCookie("sidebar") === "collapsed");
@@ -45,6 +52,21 @@ export function AppShell({ children }: { children: ReactNode }) {
       document.documentElement.classList.toggle("dark", savedTheme === "dark");
     }
   }, []);
+
+  // ⌘K / Ctrl+K keyboard shortcut
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setSearchOpen((prev) => !prev);
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  const closeSearch = useCallback(() => setSearchOpen(false), []);
 
   function toggleSidebar() {
     const next = !collapsed;
@@ -114,8 +136,11 @@ export function AppShell({ children }: { children: ReactNode }) {
               <div className="font-display text-xl font-bold">Fan Dashboard</div>
             </div>
             <div className="flex items-center gap-2">
-              <Button variant="ghost" aria-label="Open search">
+              <Button variant="ghost" aria-label="Open search" onClick={() => setSearchOpen(true)}>
                 <Search size={20} strokeWidth={1.75} />
+                <kbd className="ml-1.5 hidden rounded border border-hairline px-1.5 py-0.5 font-data text-[10px] text-muted lg:inline-block">
+                  ⌘K
+                </kbd>
               </Button>
               <Button variant="ghost" onClick={toggleTheme} aria-label="Toggle theme">
                 {theme === "dark" ? <Sun size={20} strokeWidth={1.75} /> : <Moon size={20} strokeWidth={1.75} />}
@@ -145,6 +170,8 @@ export function AppShell({ children }: { children: ReactNode }) {
           );
         })}
       </nav>
+
+      <SearchOverlay open={searchOpen} onClose={closeSearch} />
     </div>
   );
 }

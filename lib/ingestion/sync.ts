@@ -9,6 +9,7 @@ import { mapCompetition, mapSeason } from "@/lib/ingestion/map-competition";
 import { mapMatch } from "@/lib/ingestion/map-match";
 import { mapPlayer, mapTeam } from "@/lib/ingestion/map-team";
 import { prisma } from "@/lib/prisma";
+import { buildSearchIndex } from "@/lib/queries/search";
 
 type SyncContext = {
   client: FootballDataClient;
@@ -320,6 +321,15 @@ export async function syncFootballData(client = new FootballDataClient()): Promi
   } catch (error) {
     console.error("[sync] competitions failed", error);
     context.failedResources.push("competitions");
+  }
+
+  // Rebuild search index from the fresh data before invalidating stale keys
+  try {
+    console.log("[sync] rebuilding search index");
+    await buildSearchIndex();
+  } catch (error) {
+    console.error("[sync] search index rebuild failed", error);
+    context.failedResources.push("search-index");
   }
 
   const touchedCacheKeys = Array.from(context.touchedCacheKeys);
