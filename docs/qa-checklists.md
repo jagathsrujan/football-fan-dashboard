@@ -67,3 +67,21 @@
 - [ ] Browser Network tab shows zero requests to `football-data.org`.
 - [ ] `buildSearchIndex()` is called at the end of ingestion sync.
 
+## Phase 3f — Schedule Page
+
+- [ ] `/api/schedule` returns fixtures grouped by date with default Mon–Sun range.
+- [ ] `/api/schedule?dateFrom=...&dateTo=...` filters fixtures correctly by date range.
+- [ ] `/api/schedule?competitionIds=...` filters fixtures by selected competitions.
+- [ ] Cache key follows pattern `schedule:v1:{dateFrom}:{dateTo}:{competitionIds}` with 300s TTL.
+- [ ] Page renders top-right view toggle for "List" and "Week grid".
+- [ ] List view displays fixtures grouped by date sections (Today, Tomorrow, etc.).
+- [ ] Week grid displays 7 columns for Mon–Sun with compact match chips.
+- [ ] Filter bar renders competition multi-select pill badges with crests.
+- [ ] Filter chips are tappable/clickable and toggle selection state.
+- [ ] "Clear all" button resets competition filters when active.
+- [ ] "My teams" button is disabled/stubbed with title explaining Phase 4 integration.
+- [ ] Live-window timestamp placeholder shows "Updated —" and "updates automatically" caption.
+- [ ] Empty state shows "No matches this week" with message to adjust filters when current view is empty.
+- [ ] Empty state shows "No matches scheduled this week" when week grid is completely empty.
+- [ ] Horizontal scroll on mobile week grid works smoothly without breaking layout (`overflow-x-auto min-w-[700px]`).
+- [ ] Browser Network tab shows zero requests to `football-data.org`.

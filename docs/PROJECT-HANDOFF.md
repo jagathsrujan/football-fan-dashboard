@@ -9,8 +9,8 @@
 | Repository | `jagathsrujan/football-fan-dashboard` |
 | Local path | `/Users/agent/Documents/football project 1` |
 | Stack | Next.js 15 App Router, React 19, TypeScript, Tailwind CSS, Prisma 6, PostgreSQL, Upstash Redis REST, Framer Motion, Recharts |
-| Current phase | Phase 3e complete |
-| Last known commit | Phase 3e - Global search overlay |
+| Current phase | Phase 3f complete |
+| Last known commit | Phase 3f - Schedule page |
 | Data source rule | `football-data.org` is called only by ingestion/cron, never by pages |
 | Current UX rule | Every data page has loading, empty, and error states |
 
@@ -39,6 +39,7 @@ Do not leave this file stale. It is the continuity layer for future coding agent
 
 | Date | Agent work | Files touched | Verification |
 | --- | --- | --- | --- |
+| 2026-07-01 | Phase 3f: schedule page with list/week-grid views, week navigation, competition filter pills, My-teams stub, live-window placeholder. | `lib/queries/get-schedule.ts`, `app/api/schedule/route.ts`, `components/schedule/schedule-client.tsx`, `app/schedule/page.tsx`, `docs/PROJECT-HANDOFF.md`, `docs/qa-checklists.md` | `npm run lint`, `npx tsc --noEmit`, `npm run build` passed. |
 | 2026-07-01 | Phase 3e: global search overlay. Search index builder, search API route, ⌘K overlay with debounce, grouped results, mobile full-screen layout. | `lib/queries/search.ts`, `app/api/search/route.ts`, `components/search/search-overlay.tsx`, `components/layout/app-shell.tsx`, `lib/ingestion/sync.ts`, `docs/PROJECT-HANDOFF.md`, `docs/qa-checklists.md` | `npm run lint`, `npx tsc --noEmit`, `npm run build` passed. |
 | 2026-07-01 | Added project README and this handoff/progress guide so future agents can continue cleanly. | `README.md`, `docs/PROJECT-HANDOFF.md` | Documentation-only change; no app build required unless code changes are added after this entry. |
 | 2026-07-01 | Phase 3d: built Match detail endpoint and page. | `app/api/matches/[id]/route.ts`, `app/matches/[id]/page.tsx`, `components/matches/match-detail-client.tsx`, `lib/queries/get-match.ts`, `lib/cache.ts`, `docs/qa-checklists.md` | `npm run lint`, `npx tsc --noEmit`, `npm run build` passed. |
@@ -85,6 +86,7 @@ Design principles:
 | Phase 3c - Players | Complete | `01f5873` | Player detail header, club stats and international stats kept as separate top-level API keys. |
 | Phase 3d - Matches | Complete | `4328abb` | Match detail, event timeline, lineups `null`, live-window 30s cache TTL, long TTL otherwise. |
 | Phase 3e - Global Search | Complete | Phase 3e | Search index builder, `/api/search?q=`, ⌘K overlay, debounced in-memory filter, grouped results, mobile full-screen. |
+| Phase 3f - Schedule Page | Complete | Phase 3f | Schedule query, `/api/schedule`, list/week-grid views, competition filter pills, My-teams stub, live-window placeholder. |
 | Phase 4 - Auth + Favorites | Not started | n/a | Add Better Auth models and connect favorites. User/Auth/Account/Session/Verification were intentionally deferred from initial schema. |
 | Phase 5 - Live-feeling polling | Not started | n/a | TanStack Query or local polling against own API only, never football-data.org. |
 
@@ -108,7 +110,7 @@ Design principles:
 | --- | --- |
 | Root shell | `app/layout.tsx`, `app/template.tsx`, `components/layout/app-shell.tsx`, `app/globals.css` |
 | Route pages | `app/page.tsx`, `app/competitions/page.tsx`, `app/competitions/[code]/page.tsx`, `app/teams/[id]/page.tsx`, `app/players/[id]/page.tsx`, `app/matches/[id]/page.tsx`, `app/schedule/page.tsx`, `app/favorites/page.tsx`, `app/sign-in/page.tsx` |
-| API routes | `app/api/competitions/**`, `app/api/teams/**`, `app/api/players/**`, `app/api/matches/[id]/route.ts`, `app/api/search/route.ts`, `app/api/cron/sync/route.ts` |
+| API routes | `app/api/competitions/**`, `app/api/teams/**`, `app/api/players/**`, `app/api/matches/[id]/route.ts`, `app/api/search/route.ts`, `app/api/schedule/route.ts`, `app/api/cron/sync/route.ts` |
 
 ### Components
 
@@ -118,6 +120,7 @@ Design principles:
 | Football components | `components/football/crest.tsx`, `player-avatar.tsx`, `match-card.tsx`, `team-card.tsx`, `player-card.tsx`, `standings-table.tsx`, `stat-row.tsx`, `form-guide.tsx`, `score-display.tsx`, `live-badge.tsx` |
 | Feature clients | `components/competitions/*`, `components/teams/team-detail-client.tsx`, `components/players/player-detail-client.tsx`, `components/matches/match-detail-client.tsx` |
 | Search | `components/search/search-overlay.tsx` |
+| Schedule | `components/schedule/schedule-client.tsx` |
 | Mock scaffolding | `components/mock/data.ts`, `components/mock/page-sections.tsx` |
 
 ### Data Layer
@@ -131,6 +134,7 @@ Design principles:
 | Player queries | `lib/queries/get-player.ts`, `get-player-stats.ts` |
 | Match queries | `lib/queries/get-match.ts` |
 | Search queries | `lib/queries/search.ts` |
+| Schedule queries | `lib/queries/get-schedule.ts` |
 | Ingestion | `lib/football-data-client.ts`, `lib/ingestion/sync.ts`, `lib/ingestion/map-competition.ts`, `map-team.ts`, `map-match.ts` |
 
 ## Architecture Rules To Preserve
@@ -160,6 +164,7 @@ Design principles:
 | Player stats | `player-stats:v1:{playerId}` | 3600s |
 | Match | `match:v1:{matchId}` | 30s only in live window, otherwise 3600s |
 | Search index | `search-index:v1` | 3600s |
+| Schedule | `schedule:v1:{dateFrom}:{dateTo}:{competitionIds}` | 300s |
 
 ## Environment Variables
 
@@ -182,6 +187,7 @@ Free-tier sources are documented inline in `.env.example`.
 
 | Date | Scope | Commands | Result |
 | --- | --- | --- | --- |
+| 2026-07-01 | Phase 3f | `npm run lint`, `npx tsc --noEmit`, `npm run build` | Passed. |
 | 2026-07-01 | Phase 3d | `npm run lint`, `npx tsc --noEmit`, `npm run build` | Passed. Build warns that `tailwind.config.ts` is reparsed as ESM because `package.json` has no `"type": "module"`; warning is non-blocking. |
 | 2026-07-01 | Phase 3c | `npm run lint`, `npx tsc --noEmit`, `npm run build` | Passed. First `tsc` run failed before `.next/types` existed; rerunning after build passed. |
 | 2026-07-01 | Phase 3b | `npm run lint`, `npx tsc --noEmit`, `npm run build` | Passed. Browser could render error states only when local DB placeholder was unavailable. |
@@ -202,10 +208,9 @@ Free-tier sources are documented inline in `.env.example`.
 
 Recommended next steps:
 
-1. **Schedule page**: replace the mock route with real fixtures grouped by date and status.
-2. **Favorites/Auth Phase 4**: add deferred auth models, Better Auth config, and connect favorite stars.
-3. **Live-window polling Phase 5**: poll own match API only when match is scheduled within 15 minutes, `IN_PLAY`, or `PAUSED`; stop when `FINISHED`.
-4. **Seed/dev data workflow**: add a small local seed or documented sync command so browser QA can happen without relying on production data.
+1. **Favorites/Auth Phase 4**: add deferred auth models, Better Auth config, and connect favorite stars. Wire the "My teams" filter on the schedule page.
+2. **Live-window polling Phase 5**: poll own match API only when match is scheduled within 15 minutes, `IN_PLAY`, or `PAUSED`; stop when `FINISHED`. Wire the "Updated —" timestamp on the schedule page.
+3. **Seed/dev data workflow**: add a small local seed or documented sync command so browser QA can happen without relying on production data.
 
 ## Per-Agent Change Log Template
 
