@@ -23,8 +23,11 @@ async function command<T>(parts: string[], query?: string): Promise<T | null> {
 }
 
 export const cacheKeys = {
+  competitions: () => "competitions:v1:all",
+  competition: (code: string) => `competition:v1:${code}`,
   standings: (competitionId: string, seasonId: string) => `standings:v1:${competitionId}:${seasonId}`,
   fixtures: (competitionId: string, seasonId: string, date: string) => `fixtures:v1:${competitionId}:${seasonId}:${date}`,
+  scorers: (competitionId: string, seasonId: string) => `scorers:v1:${competitionId}:${seasonId}`,
   team: (teamId: string) => `team:v1:${teamId}`,
   player: (playerId: string) => `player:v1:${playerId}`,
   searchIndex: () => "search-index:v1",

@@ -24,6 +24,7 @@ export function EmptyState({ action, icon: Icon, message, variant = "empty" }: E
       {action && (
         <button
           className="inline-flex h-9 items-center justify-center rounded border border-hairline bg-surface-raised px-3 text-sm font-semibold text-primary outline-none transition-colors hover:border-floodlight/40 focus-visible:ring-2 focus-visible:ring-floodlight/40"
+          onClick={action.onClick}
           type="button"
         >
           {action.label}

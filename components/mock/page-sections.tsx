@@ -29,7 +29,6 @@ export function FeedbackStates({ emptyMessage }: { emptyMessage: string }) {
           icon={AlertTriangle}
           message="Mock request failed. Retry keeps the same preview state."
           variant="error"
-          action={{ label: "Retry", onClick: () => undefined }}
         />
       </Card>
     </section>
