@@ -22,3 +22,13 @@
 - [ ] Tab underline animates between Squad, Fixtures, and Form.
 - [ ] Mobile bottom navigation does not obscure the final content or any retry controls.
 - [ ] Browser Network tab on `/teams/[id]` shows requests only to this app's `/api/*` routes, with zero requests to `football-data.org`.
+
+## Phase 3c — Player Detail
+
+- [ ] `/players/[id]` renders a large 96px initials `PlayerAvatar`, name, position badge, current team crest, and nationality badge from `/api/players/[id]`.
+- [ ] Player avatar uses Tier 1 initials fallback only; no Wikimedia, TheSportsDB, or external photo lookup is attempted.
+- [ ] Club stats tab fetches `/api/players/[id]/stats`, renders StatCard summary tiles plus a season-by-season table, and includes loading, empty, and error + retry states.
+- [ ] International stats tab fetches `/api/players/[id]/stats`, renders a distinct international stats view with the caption `Separate from club statistics.`, and includes loading, empty, and error + retry states.
+- [ ] `/api/players/[id]/stats` response keeps `clubStats` and `internationalStats` as two distinct top-level keys.
+- [ ] Club and international stat table numeric cells use `font-data` and `tabular-nums`.
+- [ ] Browser Network tab on `/players/[id]` shows requests only to this app's `/api/*` routes, with zero requests to `football-data.org`.
