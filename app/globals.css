@@ -13,6 +13,9 @@
   --color-text-primary: #17231D;
   --color-text-secondary: #5B655F;
   --color-text-muted: #8C948E;
+  --color-floodlight: #B8791A;
+  --color-turf: #2F6449;
+  --color-dusk: #2F5C82;
 }
 
 .dark {
@@ -25,6 +28,9 @@
   --color-text-primary: #F3F1EA;
   --color-text-secondary: #9CA6A0;
   --color-text-muted: #6B756F;
+  --color-floodlight: #F5B942;
+  --color-turf: #4E9873;
+  --color-dusk: #5B8DBE;
 }
 
 html {

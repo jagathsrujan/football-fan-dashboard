@@ -11,3 +11,14 @@
 - [ ] Standings table horizontally scrolls on mobile and keeps the position column sticky.
 - [ ] Browser Network tab on `/competitions` and `/competitions/[code]` shows requests only to this app's `/api/*` routes, with zero requests to `football-data.org`.
 - [ ] API 404 responses return `{ "error": "...", "code": "NOT_FOUND" }`.
+
+## Phase 3b — Team Detail
+
+- [ ] `/teams/[id]` renders a large crest, team name, country metadata, and competition tags from `/api/teams/[id]`.
+- [ ] Favorite star appears as a ghost icon button with a 36px touch target and does not throw when clicked.
+- [ ] Squad tab fetches `/api/teams/[id]/squad`, groups players under GK/DEF/MID/FWD headers, and renders loading, empty, and error + retry states.
+- [ ] Fixtures tab fetches `/api/teams/[id]/fixtures`, separates upcoming and recent matches, and renders loading, empty, and error + retry states.
+- [ ] Form tab fetches `/api/teams/[id]/form`, shows W/D/L chips plus a goals-for/goals-against Recharts line chart, and renders loading, empty, and error + retry states.
+- [ ] Tab underline animates between Squad, Fixtures, and Form.
+- [ ] Mobile bottom navigation does not obscure the final content or any retry controls.
+- [ ] Browser Network tab on `/teams/[id]` shows requests only to this app's `/api/*` routes, with zero requests to `football-data.org`.

@@ -29,6 +29,9 @@ export const cacheKeys = {
   fixtures: (competitionId: string, seasonId: string, date: string) => `fixtures:v1:${competitionId}:${seasonId}:${date}`,
   scorers: (competitionId: string, seasonId: string) => `scorers:v1:${competitionId}:${seasonId}`,
   team: (teamId: string) => `team:v1:${teamId}`,
+  squad: (teamId: string, seasonId: string) => `squad:v1:${teamId}:${seasonId}`,
+  teamFixtures: (teamId: string) => `team-fixtures:v1:${teamId}`,
+  teamForm: (teamId: string) => `team-form:v1:${teamId}`,
   player: (playerId: string) => `player:v1:${playerId}`,
   searchIndex: () => "search-index:v1",
 };
