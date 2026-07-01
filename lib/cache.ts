@@ -34,6 +34,7 @@ export const cacheKeys = {
   teamForm: (teamId: string) => `team-form:v1:${teamId}`,
   player: (playerId: string) => `player:v1:${playerId}`,
   playerStats: (playerId: string) => `player-stats:v1:${playerId}`,
+  match: (matchId: string) => `match:v1:${matchId}`,
   searchIndex: () => "search-index:v1",
 };
 

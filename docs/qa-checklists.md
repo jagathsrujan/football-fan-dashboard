@@ -32,3 +32,14 @@
 - [ ] `/api/players/[id]/stats` response keeps `clubStats` and `internationalStats` as two distinct top-level keys.
 - [ ] Club and international stat table numeric cells use `font-data` and `tabular-nums`.
 - [ ] Browser Network tab on `/players/[id]` shows requests only to this app's `/api/*` routes, with zero requests to `football-data.org`.
+
+## Phase 3d — Match Detail
+
+- [ ] `/matches/[id]` renders competition tag, matchday, venue caption, team crests, team names, `ScoreDisplay`, and status badge from `/api/matches/[id]`.
+- [ ] `/api/matches/[id]` returns `{ match, events, lineups }`, with `lineups: null` on the free tier.
+- [ ] Match detail cache uses 30s TTL only for the live window: `SCHEDULED` within 15 minutes, `IN_PLAY`, or `PAUSED`; all other matches use long TTL.
+- [ ] Event timeline is minute-ordered and keyboard-navigable with visible focus states.
+- [ ] Goal, yellow card, red card, and substitution events show both an icon and text label; color is never the only signal.
+- [ ] Every crest has descriptive alt text such as `Manchester City crest`.
+- [ ] Lineups section renders `EmptyState` with `Lineups not available on the free tier`, never a blank section.
+- [ ] `ScoreDisplay` split-flap digits remount on value change and respect `prefers-reduced-motion`.
