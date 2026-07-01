@@ -1,0 +1,272 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// -- Governance hierarchy ----------------------------------------------------
+
+model Confederation {
+  id           String        @id @default(cuid())
+  name         String
+  code         String        @unique // UEFA, CONMEBOL, CONCACAF, CAF, AFC, OFC
+  federations  Federation[]
+  competitions Competition[]
+}
+
+model Federation {
+  id              String         @id @default(cuid())
+  name            String
+  country         String
+  confederationId String?
+  confederation   Confederation? @relation(fields: [confederationId], references: [id])
+  teams           Team[]
+  competitions    Competition[]
+  playerIntlStats PlayerInternationalStat[]
+
+  @@index([confederationId])
+}
+
+// -- Competitions & seasons --------------------------------------------------
+
+enum CompetitionType {
+  LEAGUE
+  CUP
+  CONTINENTAL
+  INTERNATIONAL
+}
+
+model Competition {
+  id               String          @id @default(cuid())
+  footballDataId   Int?            @unique // external id, for idempotent upserts
+  name             String
+  code             String?         @unique // e.g. "PL", "CL"
+  type             CompetitionType
+  tier             Int?            // 1 = top flight, 2 = second tier, etc.
+  emblemUrl        String?
+  federationId     String?
+  federation       Federation?     @relation(fields: [federationId], references: [id])
+  confederationId  String?
+  confederation    Confederation?  @relation(fields: [confederationId], references: [id])
+  seasons          Season[]
+  matches          Match[]
+  standings        Standing[]
+
+  @@index([federationId])
+  @@index([confederationId])
+}
+
+model Season {
+  id                String             @id @default(cuid())
+  competitionId     String
+  competition       Competition        @relation(fields: [competitionId], references: [id])
+  yearLabel         String             // e.g. "2025/26"
+  startDate         DateTime
+  endDate           DateTime
+  isCurrent         Boolean            @default(false)
+  matches           Match[]
+  standings         Standing[]
+  squadMemberships  SquadMembership[]
+  playerSeasonStats PlayerSeasonStat[]
+
+  @@index([competitionId])
+  @@unique([competitionId, yearLabel])
+}
+
+// -- Teams & players ---------------------------------------------------------
+
+enum TeamType {
+  CLUB
+  NATIONAL
+}
+
+model Team {
+  id                String             @id @default(cuid())
+  footballDataId    Int?               @unique
+  name              String
+  shortName         String?
+  type              TeamType
+  country           String?
+  federationId      String?
+  federation        Federation?        @relation(fields: [federationId], references: [id])
+  crestUrl          String?
+  clubColors        String?            // raw string from football-data.org, e.g. "Sky Blue / White"
+
+  players           Player[]           @relation("CurrentTeam")
+  squadMemberships  SquadMembership[]
+  homeMatches       Match[]            @relation("HomeTeam")
+  awayMatches       Match[]            @relation("AwayTeam")
+  matchStats        MatchStat[]
+  standings         Standing[]
+  playerSeasonStats PlayerSeasonStat[]
+
+  @@index([federationId])
+}
+
+enum Position {
+  GK
+  DEF
+  MID
+  FWD
+}
+
+model Player {
+  id               String                    @id @default(cuid())
+  footballDataId   Int?                      @unique
+  name             String
+  dob              DateTime?
+  nationality      String?
+  position         Position?
+  currentTeamId    String?
+  currentTeam      Team?                     @relation("CurrentTeam", fields: [currentTeamId], references: [id])
+  photoUrl         String?                   // usually null — see design-system doc on avatar fallback strategy
+
+  squadMemberships   SquadMembership[]
+  matchEvents        MatchEvent[]
+  seasonStats        PlayerSeasonStat[]
+  internationalStats PlayerInternationalStat[]
+
+  @@index([currentTeamId])
+  @@index([name])
+}
+
+model SquadMembership {
+  id          String   @id @default(cuid())
+  teamId      String
+  team        Team     @relation(fields: [teamId], references: [id])
+  playerId    String
+  player      Player   @relation(fields: [playerId], references: [id])
+  seasonId    String
+  season      Season   @relation(fields: [seasonId], references: [id])
+  shirtNumber Int?
+  joinedDate  DateTime?
+
+  @@unique([teamId, playerId, seasonId])
+  @@index([seasonId])
+}
+
+// -- Matches -----------------------------------------------------------------
+
+enum MatchStatus {
+  SCHEDULED
+  IN_PLAY
+  PAUSED
+  FINISHED
+  POSTPONED
+  CANCELLED
+}
+
+model Match {
+  id             String      @id @default(cuid())
+  footballDataId Int?        @unique
+  competitionId  String
+  competition    Competition @relation(fields: [competitionId], references: [id])
+  seasonId       String
+  season         Season      @relation(fields: [seasonId], references: [id])
+  homeTeamId     String
+  homeTeam       Team        @relation("HomeTeam", fields: [homeTeamId], references: [id])
+  awayTeamId     String
+  awayTeam       Team        @relation("AwayTeam", fields: [awayTeamId], references: [id])
+  kickoffTime    DateTime
+  venue          String?
+  matchday       Int?
+  status         MatchStatus @default(SCHEDULED)
+  homeScore      Int?
+  awayScore      Int?
+
+  events MatchEvent[]
+  stats  MatchStat[]
+
+  @@index([competitionId, seasonId])
+  @@index([kickoffTime])
+  @@index([status])
+}
+
+enum MatchEventType {
+  GOAL
+  CARD
+  SUBSTITUTION
+}
+
+model MatchEvent {
+  id       String         @id @default(cuid())
+  matchId  String
+  match    Match          @relation(fields: [matchId], references: [id])
+  minute   Int
+  type     MatchEventType
+  playerId String?
+  player   Player?        @relation(fields: [playerId], references: [id])
+  detail   String?        // e.g. "yellow", "red", "assist: <name>"
+
+  @@index([matchId])
+}
+
+model MatchStat {
+  id         String @id @default(cuid())
+  matchId    String
+  match      Match  @relation(fields: [matchId], references: [id])
+  teamId     String
+  team       Team   @relation(fields: [teamId], references: [id])
+  possession Float?
+  shots      Int?
+  xg         Float?
+
+  @@unique([matchId, teamId])
+}
+
+// -- Stats (club vs. international — kept as separate tables) ----------------
+
+model PlayerSeasonStat {
+  id           String   @id @default(cuid())
+  playerId     String
+  player       Player   @relation(fields: [playerId], references: [id])
+  seasonId     String
+  season       Season   @relation(fields: [seasonId], references: [id])
+  teamId       String
+  team         Team     @relation(fields: [teamId], references: [id])
+  appearances  Int      @default(0)
+  goals        Int      @default(0)
+  assists      Int      @default(0)
+  yellowCards  Int      @default(0)
+  redCards     Int      @default(0)
+  minutes      Int      @default(0)
+
+  @@unique([playerId, seasonId, teamId])
+  @@index([seasonId])
+}
+
+model PlayerInternationalStat {
+  id           String     @id @default(cuid())
+  playerId     String
+  player       Player     @relation(fields: [playerId], references: [id])
+  federationId String
+  federation   Federation @relation(fields: [federationId], references: [id])
+  caps         Int        @default(0)
+  goals        Int        @default(0)
+
+  @@unique([playerId, federationId])
+}
+
+model Standing {
+  id            String      @id @default(cuid())
+  competitionId String
+  competition   Competition @relation(fields: [competitionId], references: [id])
+  seasonId      String
+  season        Season      @relation(fields: [seasonId], references: [id])
+  teamId        String
+  team          Team        @relation(fields: [teamId], references: [id])
+  played        Int         @default(0)
+  won           Int         @default(0)
+  drawn         Int         @default(0)
+  lost          Int         @default(0)
+  goalsFor      Int         @default(0)
+  goalsAgainst  Int         @default(0)
+  points        Int         @default(0)
+  position      Int
+
+  @@unique([competitionId, seasonId, teamId])
+  @@index([competitionId, seasonId, position])
+}
