@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Mono, Inter, Oswald } from "next/font/google";
+import { AppShell } from "@/components/layout/app-shell";
 import "./globals.css";
 
 const oswald = Oswald({
@@ -33,9 +34,11 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${oswald.variable} ${inter.variable} ${plexMono.variable} h-full antialiased`}
+      className={`${oswald.variable} ${inter.variable} ${plexMono.variable} dark h-full antialiased`}
     >
-      <body className="min-h-full font-body">{children}</body>
+      <body className="min-h-full font-body">
+        <AppShell>{children}</AppShell>
+      </body>
     </html>
   );
 }

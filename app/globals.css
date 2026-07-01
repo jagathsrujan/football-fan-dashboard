@@ -6,11 +6,25 @@
 :root {
   --background: #F7F5EF;
   --foreground: #17231D;
+  --color-base: #F7F5EF;
+  --color-surface: #FFFFFF;
+  --color-surface-raised: #FCFAF4;
+  --color-hairline: #E7E2D6;
+  --color-text-primary: #17231D;
+  --color-text-secondary: #5B655F;
+  --color-text-muted: #8C948E;
 }
 
 .dark {
   --background: #0D1512;
   --foreground: #F3F1EA;
+  --color-base: #0D1512;
+  --color-surface: #141F1A;
+  --color-surface-raised: #1B2620;
+  --color-hairline: #26332C;
+  --color-text-primary: #F3F1EA;
+  --color-text-secondary: #9CA6A0;
+  --color-text-muted: #6B756F;
 }
 
 html {
@@ -21,4 +35,33 @@ body {
   min-height: 100vh;
   background: var(--background);
   color: var(--foreground);
+}
+
+@keyframes skeleton-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes live-pulse {
+  0%, 100% {
+    opacity: 0.65;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0;
+    transform: scale(1.4);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
 }

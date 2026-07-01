@@ -11,16 +11,16 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        base: colors.bg.base,
-        surface: colors.bg.surface,
-        "surface-raised": colors.bg.raised,
+        base: "var(--color-base)",
+        surface: "var(--color-surface)",
+        "surface-raised": "var(--color-surface-raised)",
         "base-light": colors.bgLight.base,
         "surface-light": colors.bgLight.surface,
         "surface-raised-light": colors.bgLight.raised,
-        hairline: colors.border.hairline,
-        primary: colors.text.primary,
-        secondary: colors.text.secondary,
-        muted: colors.text.muted,
+        hairline: "var(--color-hairline)",
+        primary: "var(--color-text-primary)",
+        secondary: "var(--color-text-secondary)",
+        muted: "var(--color-text-muted)",
         floodlight: colors.accent.primary,
         turf: colors.accent.secondary,
         dusk: colors.accent.info,
@@ -39,6 +39,33 @@ const config: Config = {
       borderRadius: {
         DEFAULT: "4px",
         md: "6px",
+      },
+      spacing: {
+        sidebar: "240px",
+        "sidebar-collapsed": "64px",
+        "bottom-nav": "56px",
+      },
+      minWidth: {
+        standings: "720px",
+      },
+      maxHeight: {
+        sheet: "80vh",
+      },
+      keyframes: {
+        "skeleton-shimmer": {
+          "100%": { transform: "translateX(100%)" },
+        },
+        "live-pulse": {
+          "0%, 100%": { opacity: "0.65", transform: "scale(1)" },
+          "50%": { opacity: "0", transform: "scale(1.4)" },
+        },
+      },
+      animation: {
+        "skeleton-shimmer": "skeleton-shimmer 1.4s infinite",
+        "live-pulse": "live-pulse 1.6s infinite",
+      },
+      transitionTimingFunction: {
+        scoreboard: "cubic-bezier(0.3, 0, 0.2, 1)",
       },
     },
   },

@@ -1,16 +1,24 @@
+import { MatchCard } from "@/components/football/match-card";
+import { TeamCard } from "@/components/football/team-card";
+import { matches, teams } from "@/components/mock/data";
+import { FeedbackStates, PageHeader, StatGrid } from "@/components/mock/page-sections";
+
 export default function Home() {
   return (
-    <main className="min-h-screen bg-base text-primary">
-      <div className="mx-auto flex min-h-screen max-w-5xl items-center px-6">
-        <div>
-          <p className="font-body text-sm font-medium uppercase tracking-[0.04em] text-secondary">
-            Phase 0 scaffold
-          </p>
-          <h1 className="mt-3 font-display text-5xl font-bold">
-            Football Fan Dashboard
-          </h1>
-        </div>
-      </div>
-    </main>
+    <div>
+      <PageHeader eyebrow="Today" title="Football Fan Dashboard" />
+      <StatGrid />
+      <section className="mt-6 grid gap-4 xl:grid-cols-3">
+        {matches.map((match) => (
+          <MatchCard key={match.id} match={match} />
+        ))}
+      </section>
+      <section className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        {teams.map((team) => (
+          <TeamCard key={team.id} name={team.name} competition={team.competition} form={team.form} />
+        ))}
+      </section>
+      <FeedbackStates emptyMessage="No matches are scheduled for this mock matchday." />
+    </div>
   );
 }
