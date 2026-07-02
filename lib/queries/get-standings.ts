@@ -20,7 +20,7 @@ type StandingPayload = {
   zones: { promotion: number[]; relegation: number[] };
 };
 
-function zones(type: string, tier: number | null, rowCount: number) {
+export function computeZones(type: string, tier: number | null, rowCount: number) {
   if (type !== "LEAGUE") return { promotion: [], relegation: [] };
   const promotion = tier === 1 ? [1, 2, 3, 4].filter((position) => position <= rowCount) : [1, 2].filter((position) => position <= rowCount);
   const relegationStart = Math.max(rowCount - 2, 1);
@@ -63,7 +63,7 @@ export async function getStandings(code: string): Promise<StandingPayload> {
     },
     season: { id: competition.currentSeason.id, yearLabel: competition.currentSeason.yearLabel },
     standings: rows,
-    zones: zones(competition.type, competition.tier, rows.length),
+    zones: computeZones(competition.type, competition.tier, rows.length),
   };
 
   await cacheSet(key, payload, 3600);

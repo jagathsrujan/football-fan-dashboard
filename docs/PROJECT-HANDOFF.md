@@ -9,8 +9,8 @@
 | Repository | `jagathsrujan/football-fan-dashboard` |
 | Local path | `/Users/agent/Documents/football project 1` |
 | Stack | Next.js 15 App Router, React 19, TypeScript, Tailwind CSS, Prisma 6, PostgreSQL, Upstash Redis REST, Framer Motion, Recharts |
-| Current phase | Phase 5 complete |
-| Last known commit | Phase 5 - Live-feeling polling, goal toasts, and accessibility/responsive polish |
+| Current phase | Final release prep complete |
+| Last known commit | Final polish - standalone seed, tests, CI workflow, and release documentation |
 | Data source rule | `football-data.org` is called only by ingestion/cron, never by pages |
 | Current UX rule | Every data page has loading, empty, and error states |
 
@@ -39,6 +39,7 @@ Do not leave this file stale. It is the continuity layer for future coding agent
 
 | Date | Agent work | Files touched | Verification |
 | --- | --- | --- | --- |
+| 2026-07-02 | Final release prep: Standalone database seed script (`prisma/seed.ts`), Vitest unit tests for `computeZones` (`tests/unit/get-standings.test.ts`), Playwright E2E smoke tests (`tests/e2e/smoke.spec.ts`), GitHub Actions CI workflow template (`.github/workflows-template/ci.yml`), production README with ASCII architecture diagram and 15-min setup guide, MIT LICENSE, and CONTRIBUTING.md. | `package.json`, `prisma/seed.ts`, `lib/queries/get-standings.ts`, `vitest.config.ts`, `tests/unit/get-standings.test.ts`, `playwright.config.ts`, `tests/e2e/smoke.spec.ts`, `.github/workflows-template/ci.yml`, `README.md`, `LICENSE`, `CONTRIBUTING.md`, `docs/PROJECT-HANDOFF.md` | `npm run test` (6/6 Vitest tests passed), `npm run lint`, `npx tsc --noEmit` passed. |
 | 2026-07-02 | Phase 5: Live-feeling polling & polish. Added TanStack Query provider and custom useMatchPolling hook (30s interval for active matches, stops on FINISHED). Created ToastStack component for top-right goal toasts holding 4s without confetti. Updated ScoreDisplay with 3D split-flap roll and amber flash. Updated MatchDetailClient and ScheduleClient to display "updates automatically". Added visible focus ring (accent-primary 40%) across all interactive elements, ensured 36×36px touch targets, and added 80px bottom padding for mobile bottom nav. | `package.json`, `components/providers/query-provider.tsx`, `components/ui/toast-stack.tsx`, `hooks/use-match-polling.ts`, `components/football/score-display.tsx`, `components/matches/match-detail-client.tsx`, `components/schedule/schedule-client.tsx`, `components/layout/app-shell.tsx`, `app/layout.tsx`, `app/globals.css`, `docs/PROJECT-HANDOFF.md`, `docs/qa-checklists.md` | `npm run lint`, `npx tsc --noEmit`, `npm run build` passed. |
 | 2026-07-02 | Phase 4: Better Auth with GitHub OAuth and Favorites system. Added UserFavorite model, auth server/client configs, /api/favorites endpoints, FavoriteButton component with Framer Motion pop, useFavorites hook, /sign-in page, /favorites management page, and personalized Home hero. | `package.json`, `prisma/schema.prisma`, `lib/auth.ts`, `lib/auth-client.ts`, `app/api/auth/[...all]/route.ts`, `app/api/favorites/**`, `hooks/use-favorites.ts`, `components/football/favorite-button.tsx`, `components/favorites/favorites-client.tsx`, `components/home/home-client.tsx`, `app/sign-in/page.tsx`, `app/favorites/page.tsx`, `app/page.tsx`, `components/layout/app-shell.tsx`, `.env.example`, `next.config.ts`, `docs/PROJECT-HANDOFF.md`, `docs/qa-checklists.md` | `npm run lint`, `npx tsc --noEmit`, `npm run build` passed. |
 | 2026-07-01 | Phase 3f: schedule page with list/week-grid views, week navigation, competition filter pills, My-teams stub, live-window placeholder. | `lib/queries/get-schedule.ts`, `app/api/schedule/route.ts`, `components/schedule/schedule-client.tsx`, `app/schedule/page.tsx`, `docs/PROJECT-HANDOFF.md`, `docs/qa-checklists.md` | `npm run lint`, `npx tsc --noEmit`, `npm run build` passed. |
@@ -137,7 +138,9 @@ Design principles:
 | Match queries | `lib/queries/get-match.ts` |
 | Search queries | `lib/queries/search.ts` |
 | Schedule queries | `lib/queries/get-schedule.ts` |
-| Ingestion | `lib/football-data-client.ts`, `lib/ingestion/sync.ts`, `lib/ingestion/map-competition.ts`, `map-team.ts`, `map-match.ts` |
+| Ingestion & Seeding | `lib/football-data-client.ts`, `lib/ingestion/*`, `prisma/seed.ts` |
+| Testing & CI | `vitest.config.ts`, `playwright.config.ts`, `tests/**`, `.github/workflows-template/ci.yml` |
+| Governance | `docs/CLAUDE.md`, `docs/PROJECT-HANDOFF.md`, `docs/qa-checklists.md`, `CONTRIBUTING.md`, `LICENSE`, `README.md` |
 
 ## Architecture Rules To Preserve
 
@@ -190,6 +193,7 @@ Free-tier sources are documented inline in `.env.example`.
 
 | Date | Scope | Commands | Result |
 | --- | --- | --- | --- |
+| 2026-07-02 | Release Prep | `npm run test`, `npm run lint`, `npx tsc --noEmit` | Passed (6/6 Vitest tests passed, 0 lint/tsc errors). |
 | 2026-07-02 | Phase 5 | `npm run lint`, `npx tsc --noEmit`, `npm run build` | Passed. |
 | 2026-07-02 | Phase 4 | `npm run lint`, `npx tsc --noEmit`, `npm run build` | Passed. |
 | 2026-07-01 | Phase 3f | `npm run lint`, `npx tsc --noEmit`, `npm run build` | Passed. |
@@ -213,8 +217,8 @@ Free-tier sources are documented inline in `.env.example`.
 
 Recommended next steps:
 
-1. **Seed/dev data workflow**: add a small local seed or documented sync command so browser QA can happen without relying on production data.
-2. **End-to-End browser testing**: run automated tests against live flows (auth, favorites, search, live polling) using Playwright or Cypress.
+1. **Public Fork & Run**: Repository is fully prepared for open source template usage and CI automated verification.
+2. **Community Extensions**: Add additional national leagues or advanced live match event streaming (WebSockets/SSE) as community pull requests.
 
 ## Per-Agent Change Log Template
 
