@@ -39,6 +39,7 @@ Do not leave this file stale. It is the continuity layer for future coding agent
 
 | Date | Agent work | Files touched | Verification |
 | --- | --- | --- | --- |
+| 2026-07-02 | Phase 4: Better Auth with GitHub OAuth and Favorites system. Added UserFavorite model, auth server/client configs, /api/favorites endpoints, FavoriteButton component with Framer Motion pop, useFavorites hook, /sign-in page, /favorites management page, and personalized Home hero. | `package.json`, `prisma/schema.prisma`, `lib/auth.ts`, `lib/auth-client.ts`, `app/api/auth/[...all]/route.ts`, `app/api/favorites/**`, `hooks/use-favorites.ts`, `components/football/favorite-button.tsx`, `components/favorites/favorites-client.tsx`, `components/home/home-client.tsx`, `app/sign-in/page.tsx`, `app/favorites/page.tsx`, `app/page.tsx`, `components/layout/app-shell.tsx`, `.env.example`, `next.config.ts`, `docs/PROJECT-HANDOFF.md`, `docs/qa-checklists.md` | `npm run lint`, `npx tsc --noEmit`, `npm run build` passed. |
 | 2026-07-01 | Phase 3f: schedule page with list/week-grid views, week navigation, competition filter pills, My-teams stub, live-window placeholder. | `lib/queries/get-schedule.ts`, `app/api/schedule/route.ts`, `components/schedule/schedule-client.tsx`, `app/schedule/page.tsx`, `docs/PROJECT-HANDOFF.md`, `docs/qa-checklists.md` | `npm run lint`, `npx tsc --noEmit`, `npm run build` passed. |
 | 2026-07-01 | Phase 3e: global search overlay. Search index builder, search API route, ⌘K overlay with debounce, grouped results, mobile full-screen layout. | `lib/queries/search.ts`, `app/api/search/route.ts`, `components/search/search-overlay.tsx`, `components/layout/app-shell.tsx`, `lib/ingestion/sync.ts`, `docs/PROJECT-HANDOFF.md`, `docs/qa-checklists.md` | `npm run lint`, `npx tsc --noEmit`, `npm run build` passed. |
 | 2026-07-01 | Added project README and this handoff/progress guide so future agents can continue cleanly. | `README.md`, `docs/PROJECT-HANDOFF.md` | Documentation-only change; no app build required unless code changes are added after this entry. |
@@ -87,7 +88,7 @@ Design principles:
 | Phase 3d - Matches | Complete | `4328abb` | Match detail, event timeline, lineups `null`, live-window 30s cache TTL, long TTL otherwise. |
 | Phase 3e - Global Search | Complete | Phase 3e | Search index builder, `/api/search?q=`, ⌘K overlay, debounced in-memory filter, grouped results, mobile full-screen. |
 | Phase 3f - Schedule Page | Complete | Phase 3f | Schedule query, `/api/schedule`, list/week-grid views, competition filter pills, My-teams stub, live-window placeholder. |
-| Phase 4 - Auth + Favorites | Not started | n/a | Add Better Auth models and connect favorites. User/Auth/Account/Session/Verification were intentionally deferred from initial schema. |
+| Phase 4 - Auth + Favorites | Complete | Phase 4 | Better Auth with GitHub OAuth, User/Account/Session/Verification/UserFavorite models, `/api/favorites`, FavoriteButton, useFavorites hook, personalized Home hero, session-aware app shell. |
 | Phase 5 - Live-feeling polling | Not started | n/a | TanStack Query or local polling against own API only, never football-data.org. |
 
 ## File Map
@@ -110,17 +111,17 @@ Design principles:
 | --- | --- |
 | Root shell | `app/layout.tsx`, `app/template.tsx`, `components/layout/app-shell.tsx`, `app/globals.css` |
 | Route pages | `app/page.tsx`, `app/competitions/page.tsx`, `app/competitions/[code]/page.tsx`, `app/teams/[id]/page.tsx`, `app/players/[id]/page.tsx`, `app/matches/[id]/page.tsx`, `app/schedule/page.tsx`, `app/favorites/page.tsx`, `app/sign-in/page.tsx` |
-| API routes | `app/api/competitions/**`, `app/api/teams/**`, `app/api/players/**`, `app/api/matches/[id]/route.ts`, `app/api/search/route.ts`, `app/api/schedule/route.ts`, `app/api/cron/sync/route.ts` |
+| API routes | `app/api/auth/[...all]/route.ts`, `app/api/favorites/route.ts`, `app/api/favorites/[id]/route.ts`, `app/api/competitions/**`, `app/api/teams/**`, `app/api/players/**`, `app/api/matches/[id]/route.ts`, `app/api/search/route.ts`, `app/api/schedule/route.ts`, `app/api/cron/sync/route.ts` |
 
 ### Components
 
 | Area | Files |
 | --- | --- |
 | UI primitives | `components/ui/button.tsx`, `card.tsx`, `badge.tsx`, `avatar.tsx`, `table.tsx`, `tabs.tsx`, `skeleton.tsx`, `empty-state.tsx`, `sheet.tsx` |
-| Football components | `components/football/crest.tsx`, `player-avatar.tsx`, `match-card.tsx`, `team-card.tsx`, `player-card.tsx`, `standings-table.tsx`, `stat-row.tsx`, `form-guide.tsx`, `score-display.tsx`, `live-badge.tsx` |
-| Feature clients | `components/competitions/*`, `components/teams/team-detail-client.tsx`, `components/players/player-detail-client.tsx`, `components/matches/match-detail-client.tsx` |
-| Search | `components/search/search-overlay.tsx` |
-| Schedule | `components/schedule/schedule-client.tsx` |
+| Football components | `components/football/crest.tsx`, `player-avatar.tsx`, `match-card.tsx`, `team-card.tsx`, `player-card.tsx`, `favorite-button.tsx`, `standings-table.tsx`, `stat-row.tsx`, `form-guide.tsx`, `score-display.tsx`, `live-badge.tsx` |
+| Feature clients | `components/home/home-client.tsx`, `components/competitions/*`, `components/teams/team-detail-client.tsx`, `components/players/player-detail-client.tsx`, `components/matches/match-detail-client.tsx`, `components/favorites/favorites-client.tsx` |
+| Search & Schedule | `components/search/search-overlay.tsx`, `components/schedule/schedule-client.tsx` |
+| Hooks & Auth | `lib/auth.ts`, `lib/auth-client.ts`, `hooks/use-favorites.ts` |
 | Mock scaffolding | `components/mock/data.ts`, `components/mock/page-sections.tsx` |
 
 ### Data Layer
@@ -178,6 +179,7 @@ FOOTBALL_DATA_API_KEY=
 AUTH_SECRET=
 AUTH_GITHUB_ID=
 AUTH_GITHUB_SECRET=
+BETTER_AUTH_URL=
 CRON_SECRET=
 ```
 
@@ -187,6 +189,7 @@ Free-tier sources are documented inline in `.env.example`.
 
 | Date | Scope | Commands | Result |
 | --- | --- | --- | --- |
+| 2026-07-02 | Phase 4 | `npm run lint`, `npx tsc --noEmit`, `npm run build` | Passed. |
 | 2026-07-01 | Phase 3f | `npm run lint`, `npx tsc --noEmit`, `npm run build` | Passed. |
 | 2026-07-01 | Phase 3d | `npm run lint`, `npx tsc --noEmit`, `npm run build` | Passed. Build warns that `tailwind.config.ts` is reparsed as ESM because `package.json` has no `"type": "module"`; warning is non-blocking. |
 | 2026-07-01 | Phase 3c | `npm run lint`, `npx tsc --noEmit`, `npm run build` | Passed. First `tsc` run failed before `.next/types` existed; rerunning after build passed. |
@@ -208,9 +211,8 @@ Free-tier sources are documented inline in `.env.example`.
 
 Recommended next steps:
 
-1. **Favorites/Auth Phase 4**: add deferred auth models, Better Auth config, and connect favorite stars. Wire the "My teams" filter on the schedule page.
-2. **Live-window polling Phase 5**: poll own match API only when match is scheduled within 15 minutes, `IN_PLAY`, or `PAUSED`; stop when `FINISHED`. Wire the "Updated —" timestamp on the schedule page.
-3. **Seed/dev data workflow**: add a small local seed or documented sync command so browser QA can happen without relying on production data.
+1. **Live-window polling Phase 5**: poll own match API only when match is scheduled within 15 minutes, `IN_PLAY`, or `PAUSED`; stop when `FINISHED`. Wire the "Updated —" timestamp on the schedule page and connect the "My teams" filter on the schedule page.
+2. **Seed/dev data workflow**: add a small local seed or documented sync command so browser QA can happen without relying on production data.
 
 ## Per-Agent Change Log Template
 

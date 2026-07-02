@@ -1,3 +1,4 @@
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -18,11 +19,11 @@ model Confederation {
 }
 
 model Federation {
-  id              String         @id @default(cuid())
+  id              String                    @id @default(cuid())
   name            String
   country         String
   confederationId String?
-  confederation   Confederation? @relation(fields: [confederationId], references: [id])
+  confederation   Confederation?            @relation(fields: [confederationId], references: [id])
   teams           Team[]
   competitions    Competition[]
   playerIntlStats PlayerInternationalStat[]
@@ -40,20 +41,20 @@ enum CompetitionType {
 }
 
 model Competition {
-  id               String          @id @default(cuid())
-  footballDataId   Int?            @unique // external id, for idempotent upserts
-  name             String
-  code             String?         @unique // e.g. "PL", "CL"
-  type             CompetitionType
-  tier             Int?            // 1 = top flight, 2 = second tier, etc.
-  emblemUrl        String?
-  federationId     String?
-  federation       Federation?     @relation(fields: [federationId], references: [id])
-  confederationId  String?
-  confederation    Confederation?  @relation(fields: [confederationId], references: [id])
-  seasons          Season[]
-  matches          Match[]
-  standings        Standing[]
+  id              String          @id @default(cuid())
+  footballDataId  Int?            @unique // external id, for idempotent upserts
+  name            String
+  code            String?         @unique // e.g. "PL", "CL"
+  type            CompetitionType
+  tier            Int? // 1 = top flight, 2 = second tier, etc.
+  emblemUrl       String?
+  federationId    String?
+  federation      Federation?     @relation(fields: [federationId], references: [id])
+  confederationId String?
+  confederation   Confederation?  @relation(fields: [confederationId], references: [id])
+  seasons         Season[]
+  matches         Match[]
+  standings       Standing[]
 
   @@index([federationId])
   @@index([confederationId])
@@ -63,7 +64,7 @@ model Season {
   id                String             @id @default(cuid())
   competitionId     String
   competition       Competition        @relation(fields: [competitionId], references: [id])
-  yearLabel         String             // e.g. "2025/26"
+  yearLabel         String // e.g. "2025/26"
   startDate         DateTime
   endDate           DateTime
   isCurrent         Boolean            @default(false)
@@ -84,16 +85,16 @@ enum TeamType {
 }
 
 model Team {
-  id                String             @id @default(cuid())
-  footballDataId    Int?               @unique
-  name              String
-  shortName         String?
-  type              TeamType
-  country           String?
-  federationId      String?
-  federation        Federation?        @relation(fields: [federationId], references: [id])
-  crestUrl          String?
-  clubColors        String?            // raw string from football-data.org, e.g. "Sky Blue / White"
+  id             String      @id @default(cuid())
+  footballDataId Int?        @unique
+  name           String
+  shortName      String?
+  type           TeamType
+  country        String?
+  federationId   String?
+  federation     Federation? @relation(fields: [federationId], references: [id])
+  crestUrl       String?
+  clubColors     String? // raw string from football-data.org, e.g. "Sky Blue / White"
 
   players           Player[]           @relation("CurrentTeam")
   squadMemberships  SquadMembership[]
@@ -114,15 +115,15 @@ enum Position {
 }
 
 model Player {
-  id               String                    @id @default(cuid())
-  footballDataId   Int?                      @unique
-  name             String
-  dob              DateTime?
-  nationality      String?
-  position         Position?
-  currentTeamId    String?
-  currentTeam      Team?                     @relation("CurrentTeam", fields: [currentTeamId], references: [id])
-  photoUrl         String?                   // usually null — see design-system doc on avatar fallback strategy
+  id             String    @id @default(cuid())
+  footballDataId Int?      @unique
+  name           String
+  dob            DateTime?
+  nationality    String?
+  position       Position?
+  currentTeamId  String?
+  currentTeam    Team?     @relation("CurrentTeam", fields: [currentTeamId], references: [id])
+  photoUrl       String? // usually null — see design-system doc on avatar fallback strategy
 
   squadMemberships   SquadMembership[]
   matchEvents        MatchEvent[]
@@ -134,13 +135,13 @@ model Player {
 }
 
 model SquadMembership {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   teamId      String
-  team        Team     @relation(fields: [teamId], references: [id])
+  team        Team      @relation(fields: [teamId], references: [id])
   playerId    String
-  player      Player   @relation(fields: [playerId], references: [id])
+  player      Player    @relation(fields: [playerId], references: [id])
   seasonId    String
-  season      Season   @relation(fields: [seasonId], references: [id])
+  season      Season    @relation(fields: [seasonId], references: [id])
   shirtNumber Int?
   joinedDate  DateTime?
 
@@ -199,7 +200,7 @@ model MatchEvent {
   type     MatchEventType
   playerId String?
   player   Player?        @relation(fields: [playerId], references: [id])
-  detail   String?        // e.g. "yellow", "red", "assist: <name>"
+  detail   String? // e.g. "yellow", "red", "assist: <name>"
 
   @@index([matchId])
 }
@@ -220,19 +221,19 @@ model MatchStat {
 // -- Stats (club vs. international — kept as separate tables) ----------------
 
 model PlayerSeasonStat {
-  id           String   @id @default(cuid())
-  playerId     String
-  player       Player   @relation(fields: [playerId], references: [id])
-  seasonId     String
-  season       Season   @relation(fields: [seasonId], references: [id])
-  teamId       String
-  team         Team     @relation(fields: [teamId], references: [id])
-  appearances  Int      @default(0)
-  goals        Int      @default(0)
-  assists      Int      @default(0)
-  yellowCards  Int      @default(0)
-  redCards     Int      @default(0)
-  minutes      Int      @default(0)
+  id          String @id @default(cuid())
+  playerId    String
+  player      Player @relation(fields: [playerId], references: [id])
+  seasonId    String
+  season      Season @relation(fields: [seasonId], references: [id])
+  teamId      String
+  team        Team   @relation(fields: [teamId], references: [id])
+  appearances Int    @default(0)
+  goals       Int    @default(0)
+  assists     Int    @default(0)
+  yellowCards Int    @default(0)
+  redCards    Int    @default(0)
+  minutes     Int    @default(0)
 
   @@unique([playerId, seasonId, teamId])
   @@index([seasonId])
@@ -269,4 +270,88 @@ model Standing {
 
   @@unique([competitionId, seasonId, teamId])
   @@index([competitionId, seasonId, position])
+}
+
+model User {
+  id            String         @id
+  name          String
+  email         String
+  emailVerified Boolean        @default(false)
+  image         String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  sessions      Session[]
+  accounts      Account[]
+  favorites     UserFavorite[]
+
+  @@unique([email])
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}
+
+// -- Favorites ---------------------------------------------------------------
+
+enum FavoriteEntityType {
+  TEAM
+  PLAYER
+}
+
+model UserFavorite {
+  id         String             @id @default(cuid())
+  userId     String
+  entityType FavoriteEntityType
+  entityId   String
+  createdAt  DateTime           @default(now())
+  user       User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, entityType, entityId])
+  @@index([userId])
+  @@map("user_favorite")
 }

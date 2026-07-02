@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import dynamic from "next/dynamic";
 import { ReactNode, useCallback, useEffect, useState } from "react";
@@ -9,6 +10,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Home,
+  LogIn,
+  LogOut,
   Moon,
   Search,
   Star,
@@ -17,6 +20,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useSession, signOut } from "@/lib/auth-client";
 
 const SearchOverlay = dynamic(
   () => import("@/components/search/search-overlay").then((m) => m.SearchOverlay),
@@ -40,6 +44,7 @@ function readCookie(name: string) {
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  const { data: session } = useSession();
   const [collapsed, setCollapsed] = useState(false);
   const [theme, setTheme] = useState<"dark" | "light">("dark");
   const [searchOpen, setSearchOpen] = useState(false);
@@ -126,6 +131,54 @@ export function AppShell({ children }: { children: ReactNode }) {
         >
           {collapsed ? <ChevronRight size={18} strokeWidth={1.75} /> : <ChevronLeft size={18} strokeWidth={1.75} />}
         </button>
+
+        {/* Sidebar footer: auth state */}
+        <div className="border-t border-hairline p-3">
+          {session ? (
+            <div className={cn("flex items-center gap-3", collapsed && "justify-center")}>
+              {session.user.image ? (
+                <Image
+                  src={session.user.image}
+                  alt={session.user.name ?? "User avatar"}
+                  width={28}
+                  height={28}
+                  className="shrink-0 rounded-full"
+                />
+              ) : (
+                <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-floodlight/20 font-display text-xs font-bold text-floodlight">
+                  {session.user.name?.[0]?.toUpperCase() ?? "U"}
+                </span>
+              )}
+              {!collapsed && (
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium">{session.user.name}</p>
+                </div>
+              )}
+              {!collapsed && (
+                <button
+                  type="button"
+                  onClick={() => signOut()}
+                  className="shrink-0 rounded p-1 text-secondary transition-colors hover:text-primary"
+                  aria-label="Sign out"
+                  title="Sign out"
+                >
+                  <LogOut size={16} strokeWidth={1.75} />
+                </button>
+              )}
+            </div>
+          ) : (
+            <Link
+              href="/sign-in"
+              className={cn(
+                "flex h-9 items-center gap-3 rounded px-3 text-sm font-medium text-secondary transition-colors hover:bg-surface-raised hover:text-primary",
+                collapsed && "justify-center px-0",
+              )}
+            >
+              <LogIn size={18} strokeWidth={1.75} />
+              {!collapsed && <span>Sign in</span>}
+            </Link>
+          )}
+        </div>
       </aside>
 
       <div className={cn("min-h-screen pb-bottom-nav transition-all duration-200 lg:pb-0", collapsed ? "lg:pl-sidebar-collapsed" : "lg:pl-sidebar")}>
@@ -145,6 +198,33 @@ export function AppShell({ children }: { children: ReactNode }) {
               <Button variant="ghost" onClick={toggleTheme} aria-label="Toggle theme">
                 {theme === "dark" ? <Sun size={20} strokeWidth={1.75} /> : <Moon size={20} strokeWidth={1.75} />}
               </Button>
+              {session ? (
+                <button
+                  type="button"
+                  onClick={() => signOut()}
+                  className="flex items-center gap-2 rounded px-2 py-1 text-sm text-secondary transition-colors hover:text-primary lg:hidden"
+                >
+                  {session.user.image ? (
+                    <Image
+                      src={session.user.image}
+                      alt={session.user.name ?? "User avatar"}
+                      width={24}
+                      height={24}
+                      className="rounded-full"
+                    />
+                  ) : (
+                    <span className="grid h-6 w-6 place-items-center rounded-full bg-floodlight/20 font-display text-[10px] font-bold text-floodlight">
+                      {session.user.name?.[0]?.toUpperCase() ?? "U"}
+                    </span>
+                  )}
+                </button>
+              ) : (
+                <Link href="/sign-in" className="lg:hidden">
+                  <Button variant="ghost" aria-label="Sign in">
+                    <LogIn size={20} strokeWidth={1.75} />
+                  </Button>
+                </Link>
+              )}
             </div>
           </div>
         </header>

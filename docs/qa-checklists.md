@@ -85,3 +85,20 @@
 - [ ] Empty state shows "No matches scheduled this week" when week grid is completely empty.
 - [ ] Horizontal scroll on mobile week grid works smoothly without breaking layout (`overflow-x-auto min-w-[700px]`).
 - [ ] Browser Network tab shows zero requests to `football-data.org`.
+
+## Phase 4 — Auth + Favorites
+
+- [ ] `/sign-in` renders centered card with pitch-pattern background, app mark, and single GitHub OAuth button without password fields.
+- [ ] Clicking "Continue with GitHub" initiates OAuth redirect via Better Auth.
+- [ ] Unauthenticated users see clean disabled/opacity-reduced state on `<FavoriteButton>` with informative tooltip.
+- [ ] Authenticated users can click star icon on team/player detail pages to toggle favorite status.
+- [ ] `<FavoriteButton>` triggers Framer Motion `whileTap={{ scale: 1.3 }}` spring animation on click.
+- [ ] `POST /api/favorites` returns 201 on success, 409 if duplicate exists, and 401 when unauthenticated.
+- [ ] `DELETE /api/favorites/[id]` removes favorite and verifies ownership (403 if belonging to another user).
+- [ ] `/favorites` page prompts unauthenticated users to sign in.
+- [ ] `/favorites` page displays empty state with CTA when authenticated user has no favorites.
+- [ ] `/favorites` displays favorited teams and players grouped into distinct sections with crests/avatars and remove buttons.
+- [ ] Home page (`/`) displays personalized "Your Teams — This Week" hero section with upcoming matches when authenticated user has favorites.
+- [ ] Home page falls back to generic Top Competitions grid when unauthenticated or when no favorites are saved.
+- [ ] App shell sidebar footer displays user avatar, name, and sign-out button when authenticated.
+- [ ] Sign-out button cleanly terminates session and reverts UI to unauthenticated state.
