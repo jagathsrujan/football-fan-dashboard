@@ -9,8 +9,8 @@
 | Repository | `jagathsrujan/football-fan-dashboard` |
 | Local path | `/Users/agent/Documents/football project 1` |
 | Stack | Next.js 15 App Router, React 19, TypeScript, Tailwind CSS, Prisma 6, PostgreSQL, Upstash Redis REST, Framer Motion, Recharts |
-| Current phase | Phase 3f complete |
-| Last known commit | Phase 3f - Schedule page |
+| Current phase | Phase 5 complete |
+| Last known commit | Phase 5 - Live-feeling polling, goal toasts, and accessibility/responsive polish |
 | Data source rule | `football-data.org` is called only by ingestion/cron, never by pages |
 | Current UX rule | Every data page has loading, empty, and error states |
 
@@ -39,6 +39,7 @@ Do not leave this file stale. It is the continuity layer for future coding agent
 
 | Date | Agent work | Files touched | Verification |
 | --- | --- | --- | --- |
+| 2026-07-02 | Phase 5: Live-feeling polling & polish. Added TanStack Query provider and custom useMatchPolling hook (30s interval for active matches, stops on FINISHED). Created ToastStack component for top-right goal toasts holding 4s without confetti. Updated ScoreDisplay with 3D split-flap roll and amber flash. Updated MatchDetailClient and ScheduleClient to display "updates automatically". Added visible focus ring (accent-primary 40%) across all interactive elements, ensured 36×36px touch targets, and added 80px bottom padding for mobile bottom nav. | `package.json`, `components/providers/query-provider.tsx`, `components/ui/toast-stack.tsx`, `hooks/use-match-polling.ts`, `components/football/score-display.tsx`, `components/matches/match-detail-client.tsx`, `components/schedule/schedule-client.tsx`, `components/layout/app-shell.tsx`, `app/layout.tsx`, `app/globals.css`, `docs/PROJECT-HANDOFF.md`, `docs/qa-checklists.md` | `npm run lint`, `npx tsc --noEmit`, `npm run build` passed. |
 | 2026-07-02 | Phase 4: Better Auth with GitHub OAuth and Favorites system. Added UserFavorite model, auth server/client configs, /api/favorites endpoints, FavoriteButton component with Framer Motion pop, useFavorites hook, /sign-in page, /favorites management page, and personalized Home hero. | `package.json`, `prisma/schema.prisma`, `lib/auth.ts`, `lib/auth-client.ts`, `app/api/auth/[...all]/route.ts`, `app/api/favorites/**`, `hooks/use-favorites.ts`, `components/football/favorite-button.tsx`, `components/favorites/favorites-client.tsx`, `components/home/home-client.tsx`, `app/sign-in/page.tsx`, `app/favorites/page.tsx`, `app/page.tsx`, `components/layout/app-shell.tsx`, `.env.example`, `next.config.ts`, `docs/PROJECT-HANDOFF.md`, `docs/qa-checklists.md` | `npm run lint`, `npx tsc --noEmit`, `npm run build` passed. |
 | 2026-07-01 | Phase 3f: schedule page with list/week-grid views, week navigation, competition filter pills, My-teams stub, live-window placeholder. | `lib/queries/get-schedule.ts`, `app/api/schedule/route.ts`, `components/schedule/schedule-client.tsx`, `app/schedule/page.tsx`, `docs/PROJECT-HANDOFF.md`, `docs/qa-checklists.md` | `npm run lint`, `npx tsc --noEmit`, `npm run build` passed. |
 | 2026-07-01 | Phase 3e: global search overlay. Search index builder, search API route, ⌘K overlay with debounce, grouped results, mobile full-screen layout. | `lib/queries/search.ts`, `app/api/search/route.ts`, `components/search/search-overlay.tsx`, `components/layout/app-shell.tsx`, `lib/ingestion/sync.ts`, `docs/PROJECT-HANDOFF.md`, `docs/qa-checklists.md` | `npm run lint`, `npx tsc --noEmit`, `npm run build` passed. |
@@ -89,7 +90,7 @@ Design principles:
 | Phase 3e - Global Search | Complete | Phase 3e | Search index builder, `/api/search?q=`, ⌘K overlay, debounced in-memory filter, grouped results, mobile full-screen. |
 | Phase 3f - Schedule Page | Complete | Phase 3f | Schedule query, `/api/schedule`, list/week-grid views, competition filter pills, My-teams stub, live-window placeholder. |
 | Phase 4 - Auth + Favorites | Complete | Phase 4 | Better Auth with GitHub OAuth, User/Account/Session/Verification/UserFavorite models, `/api/favorites`, FavoriteButton, useFavorites hook, personalized Home hero, session-aware app shell. |
-| Phase 5 - Live-feeling polling | Not started | n/a | TanStack Query or local polling against own API only, never football-data.org. |
+| Phase 5 - Live-feeling polling | Complete | Phase 5 | TanStack Query polling against `/api/matches/[id]` (30s interval for active matches), Goal toasts holding 4s without confetti, 3D split-flap digit roll with amber flash, global focus rings, 36×36px touch targets. |
 
 ## File Map
 
@@ -121,7 +122,7 @@ Design principles:
 | Football components | `components/football/crest.tsx`, `player-avatar.tsx`, `match-card.tsx`, `team-card.tsx`, `player-card.tsx`, `favorite-button.tsx`, `standings-table.tsx`, `stat-row.tsx`, `form-guide.tsx`, `score-display.tsx`, `live-badge.tsx` |
 | Feature clients | `components/home/home-client.tsx`, `components/competitions/*`, `components/teams/team-detail-client.tsx`, `components/players/player-detail-client.tsx`, `components/matches/match-detail-client.tsx`, `components/favorites/favorites-client.tsx` |
 | Search & Schedule | `components/search/search-overlay.tsx`, `components/schedule/schedule-client.tsx` |
-| Hooks & Auth | `lib/auth.ts`, `lib/auth-client.ts`, `hooks/use-favorites.ts` |
+| Hooks & Auth | `lib/auth.ts`, `lib/auth-client.ts`, `hooks/use-favorites.ts`, `hooks/use-match-polling.ts`, `components/ui/toast-stack.tsx`, `components/providers/query-provider.tsx` |
 | Mock scaffolding | `components/mock/data.ts`, `components/mock/page-sections.tsx` |
 
 ### Data Layer
@@ -189,6 +190,7 @@ Free-tier sources are documented inline in `.env.example`.
 
 | Date | Scope | Commands | Result |
 | --- | --- | --- | --- |
+| 2026-07-02 | Phase 5 | `npm run lint`, `npx tsc --noEmit`, `npm run build` | Passed. |
 | 2026-07-02 | Phase 4 | `npm run lint`, `npx tsc --noEmit`, `npm run build` | Passed. |
 | 2026-07-01 | Phase 3f | `npm run lint`, `npx tsc --noEmit`, `npm run build` | Passed. |
 | 2026-07-01 | Phase 3d | `npm run lint`, `npx tsc --noEmit`, `npm run build` | Passed. Build warns that `tailwind.config.ts` is reparsed as ESM because `package.json` has no `"type": "module"`; warning is non-blocking. |
@@ -211,8 +213,8 @@ Free-tier sources are documented inline in `.env.example`.
 
 Recommended next steps:
 
-1. **Live-window polling Phase 5**: poll own match API only when match is scheduled within 15 minutes, `IN_PLAY`, or `PAUSED`; stop when `FINISHED`. Wire the "Updated —" timestamp on the schedule page and connect the "My teams" filter on the schedule page.
-2. **Seed/dev data workflow**: add a small local seed or documented sync command so browser QA can happen without relying on production data.
+1. **Seed/dev data workflow**: add a small local seed or documented sync command so browser QA can happen without relying on production data.
+2. **End-to-End browser testing**: run automated tests against live flows (auth, favorites, search, live polling) using Playwright or Cypress.
 
 ## Per-Agent Change Log Template
 

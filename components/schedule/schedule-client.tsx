@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   CalendarDays,
   ChevronLeft,
@@ -20,6 +20,8 @@ import { Crest } from "@/components/football/crest";
 import { LiveBadge } from "@/components/football/live-badge";
 import { ScoreDisplay } from "@/components/football/score-display";
 import { cn } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
+import { shouldPollMatch } from "@/hooks/use-match-polling";
 import type { SchedulePayload, ScheduleDay, ScheduleFixture } from "@/lib/queries/get-schedule";
 import type { MatchStatus } from "@/components/football/types";
 
@@ -350,35 +352,42 @@ type ViewMode = "list" | "grid";
 export function ScheduleClient() {
   const [weekOffset, setWeekOffset] = useState(0);
   const [view, setView] = useState<ViewMode>("list");
-  const [data, setData] = useState<SchedulePayload | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [selectedCompetitions, setSelectedCompetitions] = useState<Set<string>>(new Set());
-
   const { dateFrom, dateTo } = useMemo(() => weekRange(weekOffset), [weekOffset]);
   const currentWeekLabel = useMemo(() => weekLabel(dateFrom), [dateFrom]);
 
-  const fetchSchedule = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
+  const query = useQuery<SchedulePayload, Error>({
+    queryKey: ["schedule", dateFrom, dateTo],
+    queryFn: async () => {
       const res = await fetch(`/api/schedule?dateFrom=${dateFrom}&dateTo=${dateTo}`, { cache: "no-store" });
       if (!res.ok) {
         const payload = await res.json().catch(() => ({}));
         throw new Error(payload.error ?? "Failed to load schedule");
       }
-      const payload: SchedulePayload = await res.json();
-      setData(payload);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load schedule");
-    } finally {
-      setLoading(false);
-    }
-  }, [dateFrom, dateTo]);
+      return res.json() as Promise<SchedulePayload>;
+    },
+    refetchInterval: (q) => {
+      const payload = q.state.data;
+      if (!payload) return false;
+      const hasActive = payload.days.some((day) =>
+        day.fixtures.some((f) => shouldPollMatch(f.status, f.kickoffTime))
+      );
+      return hasActive ? 30000 : false;
+    },
+    refetchIntervalInBackground: true,
+  });
 
-  useEffect(() => {
-    void fetchSchedule();
-  }, [fetchSchedule]);
+  const data = query.data ?? null;
+  const loading = query.status === "pending";
+  const error = query.error?.message ?? null;
+  const fetchSchedule = () => void query.refetch();
+
+  const isPolling = useMemo(() => {
+    if (!data) return false;
+    return data.days.some((day) =>
+      day.fixtures.some((f) => shouldPollMatch(f.status, f.kickoffTime))
+    );
+  }, [data]);
 
   function toggleCompetition(id: string) {
     setSelectedCompetitions((prev) => {
@@ -482,11 +491,17 @@ export function ScheduleClient() {
         </div>
       )}
 
-      {/* Live-window placeholder */}
+      {/* Live-window indicator */}
       <div className="mb-4 flex items-center gap-2 text-xs text-muted">
         <Clock size={14} strokeWidth={1.75} />
-        <span>Updated —</span>
-        <span className="text-secondary">updates automatically</span>
+        {isPolling ? (
+          <>
+            <span className="font-medium text-win">Active match window</span>
+            <span className="text-secondary">updates automatically</span>
+          </>
+        ) : (
+          <span>updates automatically during live match windows</span>
+        )}
       </div>
 
       {/* Content */}

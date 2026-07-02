@@ -71,3 +71,15 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+@layer base {
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  [role="button"]:focus-visible,
+  [role="tab"]:focus-visible,
+  [tabindex="0"]:focus-visible {
+    outline: none !important;
+    box-shadow: 0 0 0 2px var(--color-surface), 0 0 0 4px rgba(245, 185, 66, 0.4) !important;
+  }
+}

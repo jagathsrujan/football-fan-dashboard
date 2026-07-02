@@ -158,7 +158,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <button
                   type="button"
                   onClick={() => signOut()}
-                  className="shrink-0 rounded p-1 text-secondary transition-colors hover:text-primary"
+                  className="flex h-9 min-w-9 shrink-0 items-center justify-center rounded p-1 text-secondary transition-colors hover:text-primary focus-visible:ring-2 focus-visible:ring-floodlight/40"
                   aria-label="Sign out"
                   title="Sign out"
                 >
@@ -181,7 +181,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </aside>
 
-      <div className={cn("min-h-screen pb-bottom-nav transition-all duration-200 lg:pb-0", collapsed ? "lg:pl-sidebar-collapsed" : "lg:pl-sidebar")}>
+      <div className={cn("min-h-screen pb-[80px] transition-all duration-200 lg:pb-0", collapsed ? "lg:pl-sidebar-collapsed" : "lg:pl-sidebar")}>
         <header className="sticky top-0 z-20 border-b border-hairline bg-base/95 backdrop-blur">
           <div className="flex h-16 items-center justify-between gap-3 px-4 md:px-6">
             <div>
@@ -202,7 +202,8 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <button
                   type="button"
                   onClick={() => signOut()}
-                  className="flex items-center gap-2 rounded px-2 py-1 text-sm text-secondary transition-colors hover:text-primary lg:hidden"
+                  className="flex h-9 min-w-9 items-center justify-center gap-2 rounded px-2 py-1 text-sm text-secondary transition-colors hover:text-primary focus-visible:ring-2 focus-visible:ring-floodlight/40 lg:hidden"
+                  aria-label="Sign out"
                 >
                   {session.user.image ? (
                     <Image

@@ -4,7 +4,7 @@ import { BadgeAlert, CalendarClock, Goal, ListX, MapPin, Repeat2, Shield, Square
 import { Crest } from "@/components/football/crest";
 import { LiveBadge } from "@/components/football/live-badge";
 import { ScoreDisplay } from "@/components/football/score-display";
-import { useApiResource } from "@/components/competitions/use-api-resource";
+import { useMatchPolling } from "@/hooks/use-match-polling";
 import { PageHeader } from "@/components/mock/page-sections";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -105,11 +105,11 @@ function EventTimeline({ events }: { events: MatchDetailPayload["events"] }) {
 }
 
 export function MatchDetailClient({ matchId }: { matchId: string }) {
-  const { data, error, refetch, status } = useApiResource<MatchDetailPayload>(`/api/matches/${matchId}`);
+  const { data, error, isPolling, pollingLabel, refetch, status } = useMatchPolling(matchId);
 
-  if (status === "loading") return <MatchSkeleton />;
+  if (status === "loading" || !data) return <MatchSkeleton />;
   if (status === "error") {
-    return <EmptyState icon={Shield} message={error} variant="error" action={{ label: "Retry", onClick: refetch }} />;
+    return <EmptyState icon={Shield} message={error ?? "Failed to load match"} variant="error" action={{ label: "Retry", onClick: () => void refetch() }} />;
   }
 
   const { match } = data;
@@ -140,7 +140,12 @@ export function MatchDetailClient({ matchId }: { matchId: string }) {
             <span className="max-w-56 truncate font-display text-2xl font-semibold">{match.awayTeam.name}</span>
           </div>
         </div>
-        <div className="mt-5 flex justify-center">{statusLabel(match.status, match.kickoffTime)}</div>
+        <div className="mt-5 flex flex-col items-center justify-center gap-1.5">
+          {statusLabel(match.status, match.kickoffTime)}
+          {isPolling && (
+            <span className="text-xs font-medium text-secondary">{pollingLabel}</span>
+          )}
+        </div>
       </Card>
 
       <section className="mt-6 grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(280px,0.75fr)]">

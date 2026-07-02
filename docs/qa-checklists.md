@@ -102,3 +102,18 @@
 - [ ] Home page falls back to generic Top Competitions grid when unauthenticated or when no favorites are saved.
 - [ ] App shell sidebar footer displays user avatar, name, and sign-out button when authenticated.
 - [ ] Sign-out button cleanly terminates session and reverts UI to unauthenticated state.
+
+## Phase 5 — Live-Feeling Polling & Polish
+
+- [ ] `useMatchPolling` hook polls `/api/matches/[id]` every 30s only when match is `SCHEDULED` within 15 mins, `IN_PLAY`, or `PAUSED`.
+- [ ] Polling stops automatically when match status transitions to `FINISHED`.
+- [ ] UI copy explicitly states "updates automatically" (never "live") next to match status or schedule indicators.
+- [ ] When polling detects a new `GOAL` event, a toast notification slides in from the top right, holds for 4 seconds, and slides out cleanly without confetti.
+- [ ] `ScoreDisplay` animates digit transitions using a 3D split-flap vertical roll (`rotateX`) via `AnimatePresence`.
+- [ ] Parent container of `ScoreDisplay` flashes amber briefly when polled score values change.
+- [ ] All interactive elements (buttons, links, inputs, tabs) display a visible focus ring (`accent-primary 40%`) when navigated via keyboard Tab.
+- [ ] Standings tables scroll horizontally on mobile viewports while keeping the `Pos` position column sticky on the left.
+- [ ] Icon buttons on mobile (search, sidebar toggle, sign out) enforce at least 36×36px touch targets (`min-h-9 min-w-9`).
+- [ ] Mobile bottom navigation bar does not obscure bottom content or controls due to adequate container bottom padding (`pb-[80px]`).
+- [ ] `prefers-reduced-motion: reduce` cleanly disables the split-flap digit roll, amber flash, goal toast entrance motion, and all layout transitions.
+- [ ] Zero browser network requests are made to `football-data.org` during polling or page navigation.
